@@ -1,0 +1,12 @@
+{
+    "name": "kcs/compressor-bundle",
+    "description": "Html compressor and optimizer bundle",
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/symfony": ">2.2.0"
+    },
+    "autoload": {
+        "psr-0": { "Kcs\\": "src/" }
+    }
+}
+
