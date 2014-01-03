@@ -1,4 +1,4 @@
-## KCS Watchdog bundle for Symfony2
+## KCS Compressor bundle for Symfony2
 
 ### Requirements:
 
@@ -10,35 +10,31 @@
 
 * Include this bundle in your composer.json
 
-```javascript
-    "require": {
-        ...
-        "kcs/watchdog-bundle": "dev-master",
-        ...
-        }
+```bash
+$ php composer.phar require kcs/compressor-bundle dev-master
 ```
 
-* Create the watchdog table on your database
+Enable the bundle in your AppKernel.php
+```php
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        $bundles = array(
+            ...
+            new Kcs\CompressorBundle\KcsCompressorBundle(),
+            ...
+        );
+        ...
+    }
+}
+```
+
 * Enjoy!
 
+You can simply disable the compressor by setting this in your config.yml:
 
-If you want to use Doctrine CouchDB ODM you have to add this to your configuration:
-
-```yaml
-...
-
-kcs_watchdog:
-    db_driver:          orm         # Allowed values "orm" (default), "couchdb"
-
-...
-```
-
-You can ignore some exceptions you don't want to log; Example:
-
-```yaml
-
-kcs_watchdog:
-    allowed_exceptions:
-        - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-
+```yml
+kcs_compressor:
+    enabled: false
 ```

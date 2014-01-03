@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="kcs_compressor.line_break_preserver.class">Kcs\CompressorBundle\Preserver\LineBreakPreserver</parameter>
+        <parameter key="kcs_compressor.conditional_comments_preserver.class">Kcs\CompressorBundle\Preserver\ConditionalCommentsPreserver</parameter>
+        <parameter key="kcs_compressor.ssi_preserver.class">Kcs\CompressorBundle\Preserver\SSIPreserver</parameter>
+        <parameter key="kcs_compressor.textarea_preserver.class">Kcs\CompressorBundle\Preserver\TextAreaPreserver</parameter>
+    </parameters>
+
+    <services>
+        <service id="kcs_compressor.line_break_preserver" class="%kcs_compressor.line_break_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.preserve_line_breaks%</argument>
+        </service>
+        <service id="kcs_compressor.conditional_comments_preserver" class="%kcs_compressor.conditional_comments_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="kcs_compressor.ssi_preserver" class="%kcs_compressor.ssi_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="kcs_compressor.textarea_preserver" class="%kcs_compressor.textarea_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+        </service>
+    </services>
+</container>

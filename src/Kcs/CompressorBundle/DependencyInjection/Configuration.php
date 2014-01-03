@@ -20,9 +20,14 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('kcs_compressor');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->children()
+            ->booleanNode('enabled')->defaultTrue()->end()
+            ->booleanNode('compress_html')->defaultTrue()->end()
+            ->booleanNode('preserve_line_breaks')->defaultTrue()->end()
+
+            ->booleanNode('remove_comments')->defaultTrue()->end()
+        ->end();
 
         return $treeBuilder;
     }

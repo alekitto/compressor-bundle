@@ -21,8 +21,16 @@ class KcsCompressorExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        $container->setParameter('kcs_compressor.enabled', $config['enabled']);
+        $container->setParameter('kcs_compressor.compress_html', $config['compress_html']);
+
+        $container->setParameter('kcs_compressor.preserve_line_breaks', $config['preserve_line_breaks']);
+
+        $container->setParameter('kcs_compressor.remove_comments', $config['remove_comments']);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+        $loader->load('preservers.xml');
+        $loader->load('compressors.xml');
     }
 }
