@@ -66,7 +66,7 @@ class LineBreakPreserver implements EventSubscriberInterface
 
     public function onPreProcess(CompressionEvent $event) {
         if (!$this->isEnabled()) return;
-        $html = $event->getOriginalContent();
+        $html = $event->getContent();
 
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {

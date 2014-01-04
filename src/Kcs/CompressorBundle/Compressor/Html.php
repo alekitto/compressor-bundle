@@ -27,6 +27,8 @@ class Html implements CompressorInterface
      */
     protected $dispatcher = null;
 
+    private $listenerSorted = false;
+
     public function __construct(EventDispatcherInterface $dispatcher, $enabled) {
         $this->setEventDispatcher($dispatcher);
         $this->setEnabled($enabled);
@@ -61,6 +63,8 @@ class Html implements CompressorInterface
         // Skipped blocks should be processed before all other blocks
         $response->setContent($this->preserveSkipBlocks($response->getContent()));
 
+        $this->sortPostProcessListeners();
+
         // Create the event
         $ev = new CompressionEvent($response);
 
@@ -75,6 +79,23 @@ class Html implements CompressorInterface
 
         // Revert skipped blocks content
         $response->setContent($this->processPreservedSkipBlocks($response->getContent()));
+    }
+
+    private function sortPostProcessListeners() {
+        if ($this->listenerSorted) return;
+
+        // Post processing filters must be executed in the reverse order
+        $dispatcher = $this->getEventDispatcher();
+        $listeners = $dispatcher->getListeners(CompressionEvents::POST_PROCESS);
+
+        foreach ($listeners as $listener) {
+            $dispatcher->removeListener(CompressionEvents::POST_PROCESS, $listener);
+        }
+        foreach (array_reverse($listeners) as $listener) {
+            $dispatcher->addListener(CompressionEvents::POST_PROCESS, $listener);
+        }
+
+        $this->listenerSorted = true;
     }
 
     // SKIP BLOCK PROCESSING

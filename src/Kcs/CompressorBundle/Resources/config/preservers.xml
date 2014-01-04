@@ -9,6 +9,8 @@
         <parameter key="kcs_compressor.conditional_comments_preserver.class">Kcs\CompressorBundle\Preserver\ConditionalCommentsPreserver</parameter>
         <parameter key="kcs_compressor.ssi_preserver.class">Kcs\CompressorBundle\Preserver\SSIPreserver</parameter>
         <parameter key="kcs_compressor.textarea_preserver.class">Kcs\CompressorBundle\Preserver\TextAreaPreserver</parameter>
+        <parameter key="kcs_compressor.pre_preserver.class">Kcs\CompressorBundle\Preserver\PrePreserver</parameter>
+        <parameter key="kcs_compressor.code_preserver.class">Kcs\CompressorBundle\Preserver\CodePreserver</parameter>
     </parameters>
 
     <services>
@@ -23,6 +25,12 @@
             <tag name="kernel.event_subscriber" />
         </service>
         <service id="kcs_compressor.textarea_preserver" class="%kcs_compressor.textarea_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="kcs_compressor.pre_preserver" class="%kcs_compressor.pre_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="kcs_compressor.code_preserver" class="%kcs_compressor.code_preserver.class%">
             <tag name="kernel.event_subscriber" />
         </service>
     </services>

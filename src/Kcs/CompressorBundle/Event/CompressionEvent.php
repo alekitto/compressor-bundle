@@ -18,15 +18,8 @@ class CompressionEvent extends Event
      */
     protected $response = null;
 
-    /**
-     * The original response content
-     * @var string
-     */
-    protected $originalContent = null;
-
     public function __construct(Response $response) {
         $this->response = $response;
-        $this->originalContent = $response->getContent();
     }
 
     /**
@@ -42,14 +35,6 @@ class CompressionEvent extends Event
      */
     public function getCharset() {
         return $this->response->getCharset();
-    }
-
-    /**
-     * Get the original response content
-     * @return string
-     */
-    public function getOriginalContent() {
-        return $this->originalContent;
     }
 
     /**

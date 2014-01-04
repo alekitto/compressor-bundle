@@ -7,11 +7,11 @@ use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
 
 /**
- * Compression conditional comments preserver
+ * Compression abstract preserver for generic tag
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class ConditionalCommentsPreserver implements EventSubscriberInterface
+abstract class AbstractTagPreserver implements EventSubscriberInterface
 {
     /**
      * @inheritDoc
@@ -28,23 +28,17 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
     /**
      * Returns the block regex
      */
-    protected function getPattern() {
-        return '#(<!(?:--)?\[[^\]]+?]>)(.*?)(<!\[[^\]]+]-->)#usi';
-    }
+    abstract protected function getPattern();
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
-        return '%%%%%%~COMPRESS~COND~%u~%%%%%%';
-    }
+    abstract protected function getReplacementFormat();
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
-        return '#%%%~COMPRESS~COND~(\d+?)~%%%#u';
-    }
+    abstract protected function getReplacementPattern();
 
     public function onPreProcess(CompressionEvent $event) {
         $html = $event->getContent();

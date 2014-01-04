@@ -3,30 +3,30 @@
 namespace Kcs\CompressorBundle\Preserver;
 
 /**
- * Compression text area content preserver
+ * Compression preserver for <code> tag
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class TextAreaPreserver extends AbstractTagPreserver
+class CodePreserver extends AbstractTagPreserver
 {
     /**
      * Returns the block regex
      */
     protected function getPattern() {
-        return '#(<textarea[^>]*?>(?:.*?)</textarea>)#usi';
+        return '#(<code[^>]*?>(?:.*?)</code>)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
     protected function getReplacementFormat() {
-        return '%%%%%%~COMPRESS~TXAREA~%u~%%%%%%';
+        return '%%%%%%~COMPRESS~CODE~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
     protected function getReplacementPattern() {
-        return '#%%%~COMPRESS~TXAREA~(\d+?)~%%%#u';
+        return '#%%%~COMPRESS~CODE~(\d+?)~%%%#u';
     }
 }
