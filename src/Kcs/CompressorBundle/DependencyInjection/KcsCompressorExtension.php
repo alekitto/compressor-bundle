@@ -30,7 +30,7 @@ class KcsCompressorExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
-        $loader->load('preservers.xml');
         $loader->load('compressors.xml');
+        $loader->load('preservers.xml');
     }
 }

@@ -7,11 +7,11 @@ use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
 
 /**
- * <script> tag preserver and javascript processor
+ * <style> tag preserver and css compressor
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class JavascriptCompressor implements EventSubscriberInterface
+class CssCompressor implements EventSubscriberInterface
 {
     /**
      * Config enabled value
@@ -20,7 +20,7 @@ class JavascriptCompressor implements EventSubscriberInterface
     protected $enabled;
 
     /**
-     * The js inline compressor
+     * The css inline compressor
      * @var InlineCompressorInterface
      */
     protected $compressor;
@@ -50,24 +50,24 @@ class JavascriptCompressor implements EventSubscriberInterface
     }
 
     /**
-     * The <script> tag regex pattern
+     * The <style> tag regex pattern
      */
     protected function getPattern() {
-        return '#(<script[^>]*?>)(.*?)(</script>)#usi';
+        return '#(<style[^>]*?>)(.*?)(</style>)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
     protected function getReplacementFormat() {
-        return '%%%%%%~COMPRESS~SCRIPT~%u~%%%%%%';
+        return '%%%%%%~COMPRESS~STYLE~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
     protected function getReplacementPattern() {
-        return '#%%%~COMPRESS~SCRIPT~(\d+?)~%%%#u';
+        return '#%%%~COMPRESS~STYLE~(\d+?)~%%%#u';
     }
 
     protected $blocks = array();
@@ -84,50 +84,35 @@ class JavascriptCompressor implements EventSubscriberInterface
     }
 
     /**
-     * Returns TRUE if the tag is a javascript opening tag, FALSE otherwise
+     * Returns TRUE if the tag is a css opening tag, FALSE otherwise
      * @param string $openingTag
      * @return bool
      */
-    protected function isJavascript($openingTag) {
+    protected function isCss($openingTag) {
         $type = $this->getTypeAttr($openingTag);
-        return 
-            $type === 'text/javascript' || $type === 'application/javascript' ||
-            preg_match('#(<script[^>]*)language\s*=\s*(["\']*)javascript([^>]*>)#usi', $openingTag);
+        return $type === 'text/css';
     }
 
     /**
      * Compress the javascript blocks
      */
     public function onCompress(CompressionEvent $event) {
-        foreach($this->blocks as $k => $content) {
-            // Extract the script code
-            if (preg_match($this->getPattern(), $content, $matches) !== 1) {
+        foreach($this->blocks as $k => $script) {
+            // Extract the style code
+            if (preg_match($this->getPattern(), $script, $matches) !== 1) {
                 continue;
             }
 
-            // Can't call compressor if not js code block
-            if (!$this->isJavascript($matches[1])) {
+            // Can't call compressor if not css code block
+            if (!$this->isCss($matches[1])) {
                 continue;
-            }
-
-            // Check if CDATA attribute is present
-            $cdataWrapper = false;
-            $script = $matches[2];
-            if (preg_match('#\s*<!\[CDATA\[(.*?)\]\]>\s*#usi', $script, $cdataMatches)) {
-                $script = $cdataMatches[1];
-                $cdataWrapper = true;
             }
 
             // Call the inline compressor
-            $script = $this->compressor->compress($script);
-
-            if ($cdataWrapper) {
-                // Rewrap the compressed script into CDATA tag
-                $script = "<![CDATA[" . $script . "]]>";
-            }
+            $script = $matches[1] . $this->compressor->compress($matches[2]) . $matches[3];
 
             // Replace the block into the saved array
-            $this->blocks[$k] = $matches[1] . $script . $matches[3];
+            $this->blocks[$k] = $script;
         }
     }
 
@@ -137,16 +122,11 @@ class JavascriptCompressor implements EventSubscriberInterface
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
-                $type = $this->getTypeAttr($matches[1][$k]);
+                // Save found block
+                $this->blocks[$k] = $content;
 
-                // Ignore jQuery template. Should be compressed with the rest of html.
-                if ($type !== "text/x-jquery-tmpl") {
-                    // Save found block
-                    $this->blocks[$k] = $content;
-
-                    // Insert replacements
-                    $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
-                }
+                // Insert replacements
+                $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
             }
         }
 

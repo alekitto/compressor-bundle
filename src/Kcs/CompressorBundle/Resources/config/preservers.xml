@@ -14,10 +14,6 @@
     </parameters>
 
     <services>
-        <service id="kcs_compressor.line_break_preserver" class="%kcs_compressor.line_break_preserver.class%">
-            <tag name="kernel.event_subscriber" />
-            <argument>%kcs_compressor.preserve_line_breaks%</argument>
-        </service>
         <service id="kcs_compressor.conditional_comments_preserver" class="%kcs_compressor.conditional_comments_preserver.class%">
             <tag name="kernel.event_subscriber" />
         </service>
@@ -32,6 +28,10 @@
         </service>
         <service id="kcs_compressor.code_preserver" class="%kcs_compressor.code_preserver.class%">
             <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="kcs_compressor.line_break_preserver" class="%kcs_compressor.line_break_preserver.class%">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.preserve_line_breaks%</argument>
         </service>
     </services>
 </container>
