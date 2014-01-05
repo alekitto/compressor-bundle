@@ -8,9 +8,9 @@
         <parameter key="kcs_compressor.comments_remover.class">Kcs\CompressorBundle\Compressor\HtmlCommentsRemover</parameter>
         <parameter key="kcs_compressor.js_compressor.class">Kcs\CompressorBundle\Compressor\JavascriptCompressor</parameter>
         <parameter key="kcs_compressor.css_compressor.class">Kcs\CompressorBundle\Compressor\CssCompressor</parameter>
-
-        <parameter key="kcs_compressor.inline_js_compressor.class">Kcs\CompressorBundle\Compressor\NoneCompressor</parameter>
-        <parameter key="kcs_compressor.inline_css_compressor.class">Kcs\CompressorBundle\Compressor\NoneCompressor</parameter>
+        <parameter key="kcs_compressor.intertag_spaces_remover.class">Kcs\CompressorBundle\Compressor\IntertagSpacesRemover</parameter>
+        <parameter key="kcs_compressor.sorrounding_spaces_remover.class">Kcs\CompressorBundle\Compressor\SorroundingSpacesRemover</parameter>
+        <parameter key="kcs_compressor.multispace_remover.class">Kcs\CompressorBundle\Compressor\MultiSpaceRemover</parameter>
     </parameters>
 
     <services>
@@ -23,12 +23,24 @@
         <service id="kcs_compressor.js_compressor" class="%kcs_compressor.js_compressor.class%">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="kcs_compressor.inline_js_compressor" />
-            <argument>true</argument>
+            <argument>%kcs_compressor.compress_js%</argument>
         </service>
         <service id="kcs_compressor.css_compressor" class="%kcs_compressor.css_compressor.class%">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="kcs_compressor.inline_css_compressor" />
-            <argument>true</argument>
+            <argument>%kcs_compressor.compress_css%</argument>
+        </service>
+        <service id="kcs_compressor.intertag_spaces_remover" class="%kcs_compressor.intertag_spaces_remover.class%">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
+        </service>
+        <service id="kcs_compressor.sorrounding_spaces_remover" class="%kcs_compressor.sorrounding_spaces_remover.class%">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
+        </service>
+        <service id="kcs_compressor.multispace_remover" class="%kcs_compressor.multispace_remover.class%">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
         </service>
     </services>
 </container>

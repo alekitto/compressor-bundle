@@ -27,6 +27,26 @@ class Configuration implements ConfigurationInterface
             ->booleanNode('preserve_line_breaks')->defaultTrue()->end()
 
             ->booleanNode('remove_comments')->defaultTrue()->end()
+            ->booleanNode('remove_extra_spaces')->defaultTrue()->end()
+            ->booleanNode('compress_js')->defaultTrue()->end()
+            ->booleanNode('compress_css')->defaultTrue()->end()
+
+            ->scalarNode('js_compressor')
+                ->validate()
+                    ->ifNotInArray(array('none', 'custom'))
+                    ->thenInvalid('%s is not a supported js compressor')
+                ->end()
+                ->defaultValue('none')
+            ->end()
+            ->scalarNode('js_compressor_class')->defaultNull()->end()
+            ->scalarNode('css_compressor')
+                ->validate()
+                    ->ifNotInArray(array('none', 'custom'))
+                    ->thenInvalid('%s is not a supported css compressor')
+                ->end()
+                ->defaultValue('none')
+            ->end()
+            ->scalarNode('css_compressor_class')->defaultNull()->end()
         ->end();
 
         return $treeBuilder;

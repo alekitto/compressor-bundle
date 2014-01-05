@@ -27,10 +27,44 @@ class KcsCompressorExtension extends Extension
         $container->setParameter('kcs_compressor.preserve_line_breaks', $config['preserve_line_breaks']);
 
         $container->setParameter('kcs_compressor.remove_comments', $config['remove_comments']);
+        $container->setParameter('kcs_compressor.remove_extra_spaces', $config['remove_extra_spaces']);
+        $container->setParameter('kcs_compressor.compress_js', $config['compress_js']);
+        $container->setParameter('kcs_compressor.compress_css', $config['compress_css']);
+
+        $this->setJsCompressorClass($container, $config);
+        $this->setCssCompressorClass($container, $config);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
         $loader->load('compressors.xml');
         $loader->load('preservers.xml');
+    }
+
+    private function setJsCompressorClass(ContainerBuilder $container, $config) {
+        switch ($config['js_compressor']) {
+            case 'none':
+                $class = 'Kcs\CompressorBundle\Compressor\NoneCompressor';
+                break;
+
+            case 'custom':
+                $class = $config['js_compressor_class'];
+                break;
+        }
+
+        $container->setParameter('kcs_compressor.inline_js_compressor.class', $class);
+    }
+
+    private function setCssCompressorClass(ContainerBuilder $container, $config) {
+        switch ($config['css_compressor']) {
+            case 'none':
+                $class = 'Kcs\CompressorBundle\Compressor\NoneCompressor';
+                break;
+
+            case 'custom':
+                $class = $config['css_compressor_class'];
+                break;
+        }
+
+        $container->setParameter('kcs_compressor.inline_css_compressor.class', $class);
     }
 }

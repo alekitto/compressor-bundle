@@ -97,9 +97,9 @@ class CssCompressor implements EventSubscriberInterface
      * Compress the javascript blocks
      */
     public function onCompress(CompressionEvent $event) {
-        foreach($this->blocks as $k => $script) {
-            // Extract the style code
-            if (preg_match($this->getPattern(), $script, $matches) !== 1) {
+        foreach($this->blocks as $k => $content) {
+            // Extract the script code
+            if (preg_match($this->getPattern(), $content, $matches) !== 1) {
                 continue;
             }
 
@@ -108,11 +108,24 @@ class CssCompressor implements EventSubscriberInterface
                 continue;
             }
 
+            // Check if CDATA attribute is present
+            $cdataWrapper = false;
+            $style = $matches[2];
+            if (preg_match('#\s*<!\[CDATA\[(.*?)\]\]>\s*#usi', $style, $cdataMatches)) {
+                $style = $cdataMatches[1];
+                $cdataWrapper = true;
+            }
+
             // Call the inline compressor
-            $script = $matches[1] . $this->compressor->compress($matches[2]) . $matches[3];
+            $style = $this->compressor->compress($style);
+
+            if ($cdataWrapper) {
+                // Rewrap the compressed script into CDATA tag
+                $style = "<![CDATA[" . $style . "]]>";
+            }
 
             // Replace the block into the saved array
-            $this->blocks[$k] = $script;
+            $this->blocks[$k] = $matches[1] . $style . $matches[3];
         }
     }
 
