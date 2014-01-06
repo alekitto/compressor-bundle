@@ -90,7 +90,10 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected function isCss($openingTag) {
         $type = $this->getTypeAttr($openingTag);
-        return $type === 'text/css';
+
+        // HTML5 does not require the type attribute.
+        // The default value is "text/css"
+        return $type === 'text/css' || $type === null;
     }
 
     /**
@@ -121,7 +124,7 @@ class CssCompressor implements EventSubscriberInterface
 
             if ($cdataWrapper) {
                 // Rewrap the compressed script into CDATA tag
-                $style = "<![CDATA[" . $style . "]]>";
+                $style = "/*<![CDATA[*/" . $style . "/*]]>*/";
             }
 
             // Replace the block into the saved array
@@ -139,7 +142,7 @@ class CssCompressor implements EventSubscriberInterface
                 $this->blocks[$k] = $content;
 
                 // Insert replacements
-                $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                $html = str_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
             }
         }
 

@@ -33,7 +33,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('js_compressor')
                 ->validate()
-                    ->ifNotInArray(array('none', 'custom'))
+                    ->ifNotInArray(array('none', 'yui', 'custom'))
                     ->thenInvalid('%s is not a supported js compressor')
                 ->end()
                 ->defaultValue('none')
@@ -41,12 +41,15 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('js_compressor_class')->defaultNull()->end()
             ->scalarNode('css_compressor')
                 ->validate()
-                    ->ifNotInArray(array('none', 'custom'))
+                    ->ifNotInArray(array('none', 'yui', 'custom'))
                     ->thenInvalid('%s is not a supported css compressor')
                 ->end()
                 ->defaultValue('none')
             ->end()
             ->scalarNode('css_compressor_class')->defaultNull()->end()
+
+            ->scalarNode('yui_jar')->defaultNull()->end()
+            ->scalarNode('java_path')->defaultNull()->end()
         ->end();
 
         return $treeBuilder;

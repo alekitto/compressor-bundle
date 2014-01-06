@@ -7,6 +7,8 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
+use Symfony\Component\DependencyInjection\Definition;
+
 /**
  * This is the class that loads and manages your bundle configuration
  *
@@ -21,15 +23,14 @@ class KcsCompressorExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        $container->setParameter('kcs_compressor.enabled', $config['enabled']);
-        $container->setParameter('kcs_compressor.compress_html', $config['compress_html']);
 
-        $container->setParameter('kcs_compressor.preserve_line_breaks', $config['preserve_line_breaks']);
+        foreach ($config as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
 
-        $container->setParameter('kcs_compressor.remove_comments', $config['remove_comments']);
-        $container->setParameter('kcs_compressor.remove_extra_spaces', $config['remove_extra_spaces']);
-        $container->setParameter('kcs_compressor.compress_js', $config['compress_js']);
-        $container->setParameter('kcs_compressor.compress_css', $config['compress_css']);
+            $container->setParameter('kcs_compressor.' . $key, $value);
+        }
 
         $this->setJsCompressorClass($container, $config);
         $this->setCssCompressorClass($container, $config);
@@ -41,9 +42,25 @@ class KcsCompressorExtension extends Extension
     }
 
     private function setJsCompressorClass(ContainerBuilder $container, $config) {
+        $arguments = array();
         switch ($config['js_compressor']) {
             case 'none':
                 $class = 'Kcs\CompressorBundle\Compressor\NoneCompressor';
+                break;
+
+            case 'yui':
+                $class = 'Kcs\CompressorBundle\Js\YuiCompressor';
+                if (!($jarPath = $container->getParameterBag()->resolveValue('%kcs_compressor.yui_jar%'))) {
+                    throw new \RuntimeException('kcs_compressor.yui_jar must be specified if using yui compressor');
+                }
+
+                $container->setParameter('kcs_compressor.inline_js_compressor.class', $class);
+
+                $arguments[] = $jarPath;
+                if ($container->hasParameter('kcs_compressor.java_path') &&
+                        ($javaPath = $container->getParameterBag()->resolveValue('%kcs_compressor.java_path%'))) {
+                    $arguments[] = $javaPath;
+                }
                 break;
 
             case 'custom':
@@ -51,13 +68,29 @@ class KcsCompressorExtension extends Extension
                 break;
         }
 
-        $container->setParameter('kcs_compressor.inline_js_compressor.class', $class);
+        $container->setDefinition('kcs_compressor.inline_js_compressor', new Definition($class, $arguments));
     }
 
     private function setCssCompressorClass(ContainerBuilder $container, $config) {
+        $arguments = array();
         switch ($config['css_compressor']) {
             case 'none':
                 $class = 'Kcs\CompressorBundle\Compressor\NoneCompressor';
+                break;
+
+            case 'yui':
+                $class = 'Kcs\CompressorBundle\Css\YuiCompressor';
+                if (!($jarPath = $container->getParameterBag()->resolveValue('%kcs_compressor.yui_jar%'))) {
+                    throw new \RuntimeException('kcs_compressor.yui_jar must be specified if using yui compressor');
+                }
+
+                $container->setParameter('kcs_compressor.inline_css_compressor.class', $class);
+
+                $arguments[] = $jarPath;
+                if ($container->hasParameter('kcs_compressor.java_path') &&
+                        ($javaPath = $container->getParameterBag()->resolveValue('%kcs_compressor.java_path%'))) {
+                    $arguments[] = $javaPath;
+                }
                 break;
 
             case 'custom':
@@ -65,6 +98,6 @@ class KcsCompressorExtension extends Extension
                 break;
         }
 
-        $container->setParameter('kcs_compressor.inline_css_compressor.class', $class);
+        $container->setDefinition('kcs_compressor.inline_css_compressor', new Definition($class, $arguments));
     }
 }

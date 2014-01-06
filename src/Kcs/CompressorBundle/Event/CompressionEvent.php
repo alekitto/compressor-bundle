@@ -50,8 +50,9 @@ class CompressionEvent extends Event
      * @param string $content
      * @return CompressionEvent
      */
-    public function setContent($content) {
+    public function setContent($content, $force = false) {
         $this->response->setContent($content);
+
         return $this;
     }
 }

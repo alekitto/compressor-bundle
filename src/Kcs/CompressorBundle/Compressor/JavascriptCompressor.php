@@ -84,15 +84,29 @@ class JavascriptCompressor implements EventSubscriberInterface
     }
 
     /**
+     * Returns the content of the language attribute,
+     * null if the language attribute is not present
+     * @return string|null
+     */
+    protected function getLanguageAttr($tag) {
+        if (preg_match('#language\s*=\s*(["\']*)(.+?)\1#usi', $tag, $langs) === 1)
+            return $langs[2];
+        return null;
+    }
+
+    /**
      * Returns TRUE if the tag is a javascript opening tag, FALSE otherwise
      * @param string $openingTag
      * @return bool
      */
     protected function isJavascript($openingTag) {
         $type = $this->getTypeAttr($openingTag);
+        $lang = $this->getLanguageAttr($openingTag);
         return 
             $type === 'text/javascript' || $type === 'application/javascript' ||
-            preg_match('#(<script[^>]*)language\s*=\s*(["\']*)javascript([^>]*>)#usi', $openingTag);
+            $lang === 'javascript' ||
+        // If type and language attribute are not present default type is "text/javascript"
+            ($type === null && $lang === null);
     }
 
     /**
@@ -113,17 +127,19 @@ class JavascriptCompressor implements EventSubscriberInterface
             // Check if CDATA attribute is present
             $cdataWrapper = false;
             $script = $matches[2];
-            if (preg_match('#\s*<!\[CDATA\[(.*?)\]\]>\s*#usi', $script, $cdataMatches)) {
+            if (preg_match('#\s*<!\[CDATA\[(?:\s*\*/)(.*?)(?:/\*\s*)\]\]>\s*#usi', $script, $cdataMatches)) {
                 $script = $cdataMatches[1];
                 $cdataWrapper = true;
             }
 
             // Call the inline compressor
-            $script = $this->compressor->compress($script);
+            if (($script = trim($script))) {
+                $script = $this->compressor->compress($script);
+            }
 
             if ($cdataWrapper) {
                 // Rewrap the compressed script into CDATA tag
-                $script = "<![CDATA[" . $script . "]]>";
+                $script = "/*<![CDATA[*/" . $script . "/*]]>*/";
             }
 
             // Replace the block into the saved array
@@ -145,7 +161,7 @@ class JavascriptCompressor implements EventSubscriberInterface
                     $this->blocks[$k] = $content;
 
                     // Insert replacements
-                    $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                    $html = str_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
                 }
             }
         }
@@ -160,7 +176,7 @@ class JavascriptCompressor implements EventSubscriberInterface
         // Revert modifications made in pre-process phase
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
-                $html = mb_ereg_replace($content, $this->blocks[$k], $html);
+                $html = mb_ereg_replace($content, $this->blocks[$matches[1][$k]], $html);
             }
         }
 

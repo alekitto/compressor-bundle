@@ -50,7 +50,8 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
                 $this->blocks[$k] = $matches[1][$k];
 
                 // Insert replacements
-                $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                $html = preg_replace('/' . preg_quote($content, '/') . '/usi',
+                        sprintf($this->getReplacementFormat(), $k), $html);
             }
         }
 

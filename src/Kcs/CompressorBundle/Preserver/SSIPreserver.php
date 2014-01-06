@@ -29,7 +29,7 @@ class SSIPreserver implements EventSubscriberInterface
      * Returns the block regex
      */
     protected function getPattern() {
-        return '#<!--\s*#.*?-->#ui';
+        return '/<!--\s*#.*?-->/usi';
     }
 
     /**
@@ -56,7 +56,8 @@ class SSIPreserver implements EventSubscriberInterface
                 $this->blocks[$k] = $content;
 
                 // Insert replacements
-                $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                $html = preg_replace('/' . preg_quote($content, '/') . '/usi',
+                        sprintf($this->getReplacementFormat(), $k), $html);
             }
         }
 
