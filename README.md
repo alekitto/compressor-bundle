@@ -15,7 +15,8 @@ $ php composer.phar require kcs/compressor-bundle dev-master
 ```
 
 Enable the bundle in your AppKernel.php
-``` <?php
+```
+<?php
 
 class AppKernel extends Kernel
 {
