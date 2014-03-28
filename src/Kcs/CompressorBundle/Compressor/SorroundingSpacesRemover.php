@@ -13,6 +13,8 @@ use Kcs\CompressorBundle\Event\CompressionEvent;
  */
 class SorroundingSpacesRemover implements EventSubscriberInterface
 {
+    const TAGS = "html|head|body|br|p|h1|h2|h3|h4|h5|h6|blockquote|center|dl|fieldset|form|frame|frameset|hr|noframes|ol|table|tbody|tr|td|th|tfoot|thead|ul";
+
     /**
      * Config enabled value
      * @var bool
@@ -44,7 +46,7 @@ class SorroundingSpacesRemover implements EventSubscriberInterface
      * The pattern for mb_eregi_replace
      */
     protected function getPattern() {
-        return '\s*(<[^>]+>)\s*';
+        return '\s*(</?(?:' . self::TAGS . ')(?:>|[\s/][^>]*>))\s*';
     }
 
     public function onCompress(CompressionEvent $event) {
