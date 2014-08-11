@@ -129,7 +129,8 @@ class Html implements CompressorInterface
         if (preg_match_all($this->getSkipBlockPattern(), $html, $matches)) {
             foreach($matches[1] as $k => $content) {
                 $this->skipBlocks[$k] = $content;
-                $html = mb_ereg_replace($content, sprintf($this->getSkipBlockReplacementFormat(), $k), $html);
+                $html = preg_replace('/' . preg_quote($content, '/') . '/usi',
+                    sprintf($this->getSkipBlockReplacementFormat(), $k), $html);
             }
         }
         return $html;
