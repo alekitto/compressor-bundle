@@ -25,23 +25,27 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected $compressor;
 
-    public function __construct(InlineCompressorInterface $compressor, $enabled) {
+    public function __construct(InlineCompressorInterface $compressor, $enabled)
+    {
         $this->compressor = $compressor;
         $this->setEnabled($enabled);
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function setEnabled($v) {
+    public function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::COMPRESS => 'onCompress',
@@ -52,32 +56,37 @@ class CssCompressor implements EventSubscriberInterface
     /**
      * The <style> tag regex pattern
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '#(<style[^>]*?>)(.*?)(</style>)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
+    protected function getReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~STYLE~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
+    protected function getReplacementPattern()
+    {
         return '#%%%~COMPRESS~STYLE~(\d+?)~%%%#u';
     }
 
     protected $blocks = array();
 
     /**
-     * Returns the content of the type attribute,
-     * null if the type attribute is not present
+     * Returns the content of the type attribute, null if the type attribute is not present
+     *
+     * @param string $tag The style tag to be parsed
      * @return string|null
      */
-    protected function getTypeAttr($tag) {
+    protected function getTypeAttr($tag)
+    {
         if (preg_match('#type\s*=\s*(["\']*)(.+?)\1#usi', $tag, $types) === 1)
             return $types[2];
         return null;
@@ -85,10 +94,12 @@ class CssCompressor implements EventSubscriberInterface
 
     /**
      * Returns TRUE if the tag is a css opening tag, FALSE otherwise
+     *
      * @param string $openingTag
      * @return bool
      */
-    protected function isCss($openingTag) {
+    protected function isCss($openingTag)
+    {
         $type = $this->getTypeAttr($openingTag);
 
         // HTML5 does not require the type attribute.
@@ -99,7 +110,8 @@ class CssCompressor implements EventSubscriberInterface
     /**
      * Compress the javascript blocks
      */
-    public function onCompress(CompressionEvent $event) {
+    public function onCompress(CompressionEvent $event)
+    {
         foreach($this->blocks as $k => $content) {
             // Extract the script code
             if (preg_match($this->getPattern(), $content, $matches) !== 1) {
@@ -132,7 +144,8 @@ class CssCompressor implements EventSubscriberInterface
         }
     }
 
-    public function onPreProcess(CompressionEvent $event) {
+    public function onPreProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Find all occourrences of block pattern on response content
@@ -150,7 +163,8 @@ class CssCompressor implements EventSubscriberInterface
         $event->setContent($html);
     }
 
-    public function onPostProcess(CompressionEvent $event) {
+    public function onPostProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase

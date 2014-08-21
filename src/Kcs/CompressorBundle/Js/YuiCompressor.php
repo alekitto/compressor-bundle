@@ -10,24 +10,29 @@ use Kcs\CompressorBundle\Exception\ProcessException;
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class YuiCompressor extends BaseProcessCompressor {
+class YuiCompressor extends BaseProcessCompressor
+{
     private $javaPath;
     private $jarPath;
 
-    public function __construct($jarPath, $javaPath = '/usr/bin/java') {
+    public function __construct($jarPath, $javaPath = '/usr/bin/java')
+    {
         $this->setJarPath($jarPath);
         $this->setJavaPath($javaPath);
     }
 
-    public function setJavaPath($javaPath) {
+    public function setJavaPath($javaPath)
+    {
         $this->javaPath = $javaPath;
     }
 
-    public function setJarPath($jarPath) {
+    public function setJarPath($jarPath)
+    {
         $this->jarPath = $jarPath;
     }
 
-    public function compress($block) {
+    public function compress($block)
+    {
         $pb = $this->createProcessBuilder(array($this->javaPath));
 
         $pb->add('-jar')->add($this->jarPath);

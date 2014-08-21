@@ -24,29 +24,34 @@ class ResponseListener extends ContainerAware implements EventSubscriberInterfac
      */
     protected $enabled;
 
-    public function __construct(Container $container, $enabled) {
+    public function __construct(Container $container, $enabled)
+    {
         $this->setContainer($container);
         $this->setEnabled($enabled);
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function setEnabled($v) {
+    public function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             KernelEvents::RESPONSE => 'onKernelResponse'
         );
     }
 
-    public function onKernelResponse(FilterResponseEvent $event) {
+    public function onKernelResponse(FilterResponseEvent $event)
+    {
         // This filter is not enabled. Skip...
         if (!$this->isEnabled()) return;
 
@@ -54,7 +59,8 @@ class ResponseListener extends ContainerAware implements EventSubscriberInterfac
         $this->processResponse($response);
     }
 
-    public function processResponse(Response $response) {
+    public function processResponse(Response $response)
+    {
         // Call the compressors
         $this->container->get('kcs_compressor.html_compressor')->process($response);
     }

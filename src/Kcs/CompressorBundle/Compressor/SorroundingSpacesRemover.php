@@ -21,22 +21,26 @@ class SorroundingSpacesRemover implements EventSubscriberInterface
      */
     protected $enabled;
 
-    public function __construct($enabled) {
+    public function __construct($enabled)
+    {
         $this->setEnabled($enabled);
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function setEnabled($v) {
+    public function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::COMPRESS => 'onCompress'
         );
@@ -45,11 +49,13 @@ class SorroundingSpacesRemover implements EventSubscriberInterface
     /**
      * The pattern for mb_eregi_replace
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '\s*(</?(?:' . self::TAGS . ')(?:>|[\s/][^>]*>))\s*';
     }
 
-    public function onCompress(CompressionEvent $event) {
+    public function onCompress(CompressionEvent $event)
+    {
         $event->setContent(mb_eregi_replace($this->getPattern(), '\1', $event->getContent()));
     }
 }

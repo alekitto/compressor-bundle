@@ -3,15 +3,14 @@
 
 namespace Kcs\CompressorBundle\Compressor;
 
-use Symfony\Component\HttpFoundation\Response;
-
 /**
  * Abstract inline compressor interface.
  * The compressors for inline js, css, etc. must implement this interface
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-interface InlineCompressorInterface {
+interface InlineCompressorInterface
+{
     /**
      * This function should compress an inline block of code
      * and return the compressed block as a string

@@ -16,7 +16,8 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::POST_PROCESS => 'onPostProcess'
@@ -28,25 +29,29 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
     /**
      * Returns the block regex
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '#(<!(?:--)?\[[^\]]+?]>)(.*?)(<!\[[^\]]+]-->)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
+    protected function getReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~COND~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
+    protected function getReplacementPattern()
+    {
         return '#%%%~COMPRESS~COND~(\d+?)~%%%#u';
     }
 
-    public function onPreProcess(CompressionEvent $event) {
+    public function onPreProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Find all occourrences of block pattern on response content
@@ -64,7 +69,8 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
         $event->setContent($html);
     }
 
-    public function onPostProcess(CompressionEvent $event) {
+    public function onPostProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase

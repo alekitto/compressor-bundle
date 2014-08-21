@@ -19,22 +19,26 @@ class LineBreakPreserver implements EventSubscriberInterface
      */
     protected $enabled;
 
-    public function __construct($enabled) {
+    public function __construct($enabled)
+    {
         $this->setEnabled($enabled);
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function setEnabled($v) {
+    public function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::POST_PROCESS => 'onPostProcess'
@@ -46,25 +50,29 @@ class LineBreakPreserver implements EventSubscriberInterface
     /**
      * Returns the block regex
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '#(?:[ \t]*(\r?\n)[ \t]*)+#u';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
+    protected function getReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~LB~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
+    protected function getReplacementPattern()
+    {
         return '#%%%~COMPRESS~LB~(\d+?)~%%%#u';
     }
 
-    public function onPreProcess(CompressionEvent $event) {
+    public function onPreProcess(CompressionEvent $event)
+    {
         if (!$this->isEnabled()) return;
         $html = $event->getContent();
 
@@ -83,7 +91,8 @@ class LineBreakPreserver implements EventSubscriberInterface
         $event->setContent($html);
     }
 
-    public function onPostProcess(CompressionEvent $event) {
+    public function onPostProcess(CompressionEvent $event)
+    {
         if (!$this->isEnabled()) return;
         $html = $event->getContent();
 

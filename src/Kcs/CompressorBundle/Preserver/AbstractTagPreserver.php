@@ -16,7 +16,8 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::POST_PROCESS => 'onPostProcess'
@@ -40,7 +41,8 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
      */
     abstract protected function getReplacementPattern();
 
-    public function onPreProcess(CompressionEvent $event) {
+    public function onPreProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Find all occourrences of block pattern on response content
@@ -59,7 +61,8 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
         $event->setContent($html);
     }
 
-    public function onPostProcess(CompressionEvent $event) {
+    public function onPostProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase

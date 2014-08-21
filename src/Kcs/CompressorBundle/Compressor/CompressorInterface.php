@@ -10,10 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-interface CompressorInterface {
-
+interface CompressorInterface
+{
     /**
      * Manipulate and compress the content of $html argument
+     * @param Response $response The processed response object
      * @return string The compressed content
      */
     public function process(Response $response);

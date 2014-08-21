@@ -8,7 +8,8 @@ namespace Kcs\CompressorBundle\Event;
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-final class CompressionEvents {
+final class CompressionEvents
+{
     /**
      * This event will be fired on the pre-compression phase
      * Should be used by preservers in order to replace the content

@@ -10,7 +10,8 @@ use Kcs\CompressorBundle\Exception\ProcessException;
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class YuiCompressor extends BaseProcessCompressor {
+class YuiCompressor extends BaseProcessCompressor
+{
     private $javaPath;
     private $jarPath;
 

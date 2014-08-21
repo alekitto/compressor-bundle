@@ -29,12 +29,14 @@ class Html implements CompressorInterface
 
     private $listenerSorted = false;
 
-    public function __construct(EventDispatcherInterface $dispatcher, $enabled) {
+    public function __construct(EventDispatcherInterface $dispatcher, $enabled)
+    {
         $this->setEventDispatcher($dispatcher);
         $this->setEnabled($enabled);
     }
 
-    protected function setEventDispatcher(EventDispatcherInterface $dispatcher) {
+    protected function setEventDispatcher(EventDispatcherInterface $dispatcher)
+    {
         $this->dispatcher = $dispatcher;
     }
 
@@ -42,24 +44,29 @@ class Html implements CompressorInterface
      * Return the current event dispatcher interface
      * @return EventDispatcherInterface
      */
-    public function getEventDispatcher() {
+    public function getEventDispatcher()
+    {
         return $this->dispatcher;
     }
 
-    protected function setEnabled($v) {
+    protected function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
     /**
      * Process an HTML page and compress it preserving critical blocks
      *
-     * @param string $html The uncompressed page
+     * @param Response $response The response object containing the uncompressed page
+     * @return null
      */
-    public function process(Response $response) {
+    public function process(Response $response)
+    {
         // Skipped blocks should be processed before all other blocks
         $response->setContent($this->preserveSkipBlocks($response->getContent()));
 
@@ -81,7 +88,8 @@ class Html implements CompressorInterface
         $response->setContent($this->processPreservedSkipBlocks($response->getContent()));
     }
 
-    private function sortPostProcessListeners() {
+    private function sortPostProcessListeners()
+    {
         if ($this->listenerSorted) return;
 
         // Post processing filters must be executed in the reverse order
@@ -104,28 +112,32 @@ class Html implements CompressorInterface
     /**
      * Returns the skip block regex
      */
-    protected function getSkipBlockPattern() {
+    protected function getSkipBlockPattern()
+    {
         return '#<!--\s*\{\{\{\s*-->(.*?)<!--\s*\}\}\}\s*-->#ui';
     }
 
     /**
      * Returns the skip block temp replacement format for sprintf
      */
-    protected function getSkipBlockReplacementFormat() {
+    protected function getSkipBlockReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~SKIP~%u~%%%%%%';
     }
 
     /**
      * Returns the skip block replacement regex
      */
-    protected function getSkipBlockReplacementPattern() {
+    protected function getSkipBlockReplacementPattern()
+    {
         return '#%%%~COMPRESS~SKIP~(\d+?)~%%%#u';
     }
 
     /**
      * Replace the blocks with a temp replacement
      */
-    public function preserveSkipBlocks($html) {
+    public function preserveSkipBlocks($html)
+    {
         if (preg_match_all($this->getSkipBlockPattern(), $html, $matches)) {
             foreach($matches[1] as $k => $content) {
                 $this->skipBlocks[$k] = $content;
@@ -139,7 +151,8 @@ class Html implements CompressorInterface
     /**
      * Remove the temp replacement for preserved skip blocks
      */
-    public function processPreservedSkipBlocks($html) {
+    public function processPreservedSkipBlocks($html)
+    {
         if (preg_match_all($this->getSkipBlockReplacementPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->skipBlocks[$k], $html);

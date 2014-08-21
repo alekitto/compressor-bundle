@@ -12,21 +12,24 @@ class CodePreserver extends AbstractTagPreserver
     /**
      * Returns the block regex
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '#(<code[^>]*?>(?:.*?)</code>)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
+    protected function getReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~CODE~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
+    protected function getReplacementPattern()
+    {
         return '#%%%~COMPRESS~CODE~(\d+?)~%%%#u';
     }
 }

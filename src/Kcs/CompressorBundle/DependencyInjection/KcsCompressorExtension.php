@@ -41,7 +41,8 @@ class KcsCompressorExtension extends Extension
         $loader->load('preservers.xml');
     }
 
-    private function setJsCompressorClass(ContainerBuilder $container, $config) {
+    private function setJsCompressorClass(ContainerBuilder $container, $config)
+    {
         $arguments = array();
         switch ($config['js_compressor']) {
             case 'none':
@@ -71,7 +72,8 @@ class KcsCompressorExtension extends Extension
         $container->setDefinition('kcs_compressor.inline_js_compressor', new Definition($class, $arguments));
     }
 
-    private function setCssCompressorClass(ContainerBuilder $container, $config) {
+    private function setCssCompressorClass(ContainerBuilder $container, $config)
+    {
         $arguments = array();
         switch ($config['css_compressor']) {
             case 'none':

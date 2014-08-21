@@ -25,23 +25,27 @@ class JavascriptCompressor implements EventSubscriberInterface
      */
     protected $compressor;
 
-    public function __construct(InlineCompressorInterface $compressor, $enabled) {
+    public function __construct(InlineCompressorInterface $compressor, $enabled)
+    {
         $this->compressor = $compressor;
         $this->setEnabled($enabled);
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function setEnabled($v) {
+    public function setEnabled($v)
+    {
         $this->enabled = $v;
     }
 
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return array(
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::COMPRESS => 'onCompress',
@@ -52,21 +56,24 @@ class JavascriptCompressor implements EventSubscriberInterface
     /**
      * The <script> tag regex pattern
      */
-    protected function getPattern() {
+    protected function getPattern()
+    {
         return '#(<script[^>]*?>)(.*?)(</script>)#usi';
     }
 
     /**
      * Returns the block temp replacement format for sprintf
      */
-    protected function getReplacementFormat() {
+    protected function getReplacementFormat()
+    {
         return '%%%%%%~COMPRESS~SCRIPT~%u~%%%%%%';
     }
 
     /**
      * Returns the block replacement regex
      */
-    protected function getReplacementPattern() {
+    protected function getReplacementPattern()
+    {
         return '#%%%~COMPRESS~SCRIPT~(\d+?)~%%%#u';
     }
 
@@ -75,9 +82,12 @@ class JavascriptCompressor implements EventSubscriberInterface
     /**
      * Returns the content of the type attribute,
      * null if the type attribute is not present
+     *
+     * @param string $tag The script tag to be parsed
      * @return string|null
      */
-    protected function getTypeAttr($tag) {
+    protected function getTypeAttr($tag)
+    {
         if (preg_match('#type\s*=\s*(["\']*)(.+?)\1#usi', $tag, $types) === 1)
             return $types[2];
         return null;
@@ -86,9 +96,12 @@ class JavascriptCompressor implements EventSubscriberInterface
     /**
      * Returns the content of the language attribute,
      * null if the language attribute is not present
+     *
+     * @param string $tag The script tag to be parsed
      * @return string|null
      */
-    protected function getLanguageAttr($tag) {
+    protected function getLanguageAttr($tag)
+    {
         if (preg_match('#language\s*=\s*(["\']*)(.+?)\1#usi', $tag, $langs) === 1)
             return $langs[2];
         return null;
@@ -99,7 +112,8 @@ class JavascriptCompressor implements EventSubscriberInterface
      * @param string $openingTag
      * @return bool
      */
-    protected function isJavascript($openingTag) {
+    protected function isJavascript($openingTag)
+    {
         $type = $this->getTypeAttr($openingTag);
         $lang = $this->getLanguageAttr($openingTag);
         return 
@@ -112,7 +126,8 @@ class JavascriptCompressor implements EventSubscriberInterface
     /**
      * Compress the javascript blocks
      */
-    public function onCompress(CompressionEvent $event) {
+    public function onCompress(CompressionEvent $event)
+    {
         foreach($this->blocks as $k => $content) {
             // Extract the script code
             if (preg_match($this->getPattern(), $content, $matches) !== 1) {
@@ -147,7 +162,8 @@ class JavascriptCompressor implements EventSubscriberInterface
         }
     }
 
-    public function onPreProcess(CompressionEvent $event) {
+    public function onPreProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Find all occourrences of block pattern on response content
@@ -170,7 +186,8 @@ class JavascriptCompressor implements EventSubscriberInterface
         $event->setContent($html);
     }
 
-    public function onPostProcess(CompressionEvent $event) {
+    public function onPostProcess(CompressionEvent $event)
+    {
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase

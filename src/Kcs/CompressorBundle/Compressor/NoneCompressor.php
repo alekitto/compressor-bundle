@@ -8,8 +8,10 @@ namespace Kcs\CompressorBundle\Compressor;
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class NoneCompressor implements InlineCompressorInterface {
-    public function compress($block) {
+class NoneCompressor implements InlineCompressorInterface
+{
+    public function compress($block)
+    {
         return $block;
     }
 }

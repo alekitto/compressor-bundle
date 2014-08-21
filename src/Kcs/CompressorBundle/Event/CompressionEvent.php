@@ -18,14 +18,16 @@ class CompressionEvent extends Event
      */
     protected $response = null;
 
-    public function __construct(Response $response) {
+    public function __construct(Response $response)
+    {
         $this->response = $response;
     }
 
     /**
      * @return Response
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
@@ -33,7 +35,8 @@ class CompressionEvent extends Event
      * Get the response charset
      * @return string
      */
-    public function getCharset() {
+    public function getCharset()
+    {
         return $this->response->getCharset();
     }
 
@@ -41,7 +44,8 @@ class CompressionEvent extends Event
      * Get the current content of the response
      * @return string
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->response->getContent();
     }
 
@@ -50,7 +54,8 @@ class CompressionEvent extends Event
      * @param string $content
      * @return CompressionEvent
      */
-    public function setContent($content, $force = false) {
+    public function setContent($content)
+    {
         $this->response->setContent($content);
 
         return $this;
