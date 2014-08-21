@@ -25,6 +25,7 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
     }
 
     protected $blocks = array();
+    protected $executed = false;
 
     /**
      * Returns the block regex
@@ -45,6 +46,15 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
     {
         $html = $event->getContent();
 
+        if (!$event->isSafeToContinue()) {
+            return;
+        }
+
+        if (preg_match($this->getReplacementPattern(), $html)) {
+            $event->markFailed();
+            return;
+        }
+
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
@@ -59,10 +69,15 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
 
         // Set response content
         $event->setContent($html);
+        $this->executed = true;
     }
 
     public function onPostProcess(CompressionEvent $event)
     {
+        if (!$this->executed) {
+            return;
+        }
+
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase
@@ -73,5 +88,6 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
         }
 
         $event->setContent($html);
+        $this->executed = false;
     }
 }

@@ -56,6 +56,10 @@ class SorroundingSpacesRemover implements EventSubscriberInterface
 
     public function onCompress(CompressionEvent $event)
     {
+        if (!$event->isSafeToContinue()) {
+            return;
+        }
+
         $event->setContent(mb_eregi_replace($this->getPattern(), '\1', $event->getContent()));
     }
 }

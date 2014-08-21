@@ -25,6 +25,8 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected $compressor;
 
+    protected $executed = false;
+
     public function __construct(InlineCompressorInterface $compressor, $enabled)
     {
         $this->compressor = $compressor;
@@ -112,6 +114,10 @@ class CssCompressor implements EventSubscriberInterface
      */
     public function onCompress(CompressionEvent $event)
     {
+        if (!$event->isSafeToContinue()) {
+            return;
+        }
+
         foreach($this->blocks as $k => $content) {
             // Extract the script code
             if (preg_match($this->getPattern(), $content, $matches) !== 1) {
@@ -148,6 +154,15 @@ class CssCompressor implements EventSubscriberInterface
     {
         $html = $event->getContent();
 
+        if (!$event->isSafeToContinue()) {
+            return;
+        }
+
+        if (preg_match($this->getReplacementPattern(), $html)) {
+            $event->markFailed();
+            return;
+        }
+
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
@@ -161,10 +176,15 @@ class CssCompressor implements EventSubscriberInterface
 
         // Set response content
         $event->setContent($html);
+        $this->executed = true;
     }
 
     public function onPostProcess(CompressionEvent $event)
     {
+        if (!$this->executed) {
+            return;
+        }
+
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase
@@ -175,5 +195,6 @@ class CssCompressor implements EventSubscriberInterface
         }
 
         $event->setContent($html);
+        $this->executed = false;
     }
 }

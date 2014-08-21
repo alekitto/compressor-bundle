@@ -18,9 +18,16 @@ class CompressionEvent extends Event
      */
     protected $response = null;
 
+    /**
+     * Indicates whether is safe to continue with compression
+     * @var bool
+     */
+    protected $safeToContinue;
+
     public function __construct(Response $response)
     {
         $this->response = $response;
+        $this->safeToContinue = true;
     }
 
     /**
@@ -57,6 +64,27 @@ class CompressionEvent extends Event
     public function setContent($content)
     {
         $this->response->setContent($content);
+
+        return $this;
+    }
+
+    /**
+     * Indicates whether is safe to continue with compression
+     * @return bool
+     */
+    public function isSafeToContinue()
+    {
+        return $this->safeToContinue;
+    }
+
+    /**
+     * Mark compression as failed. Compression should not continue,
+     * but post processing of compressors and preservers should be called
+     * @return CompressionEvent
+     */
+    public function markFailed()
+    {
+        $this->safeToContinue = false;
 
         return $this;
     }

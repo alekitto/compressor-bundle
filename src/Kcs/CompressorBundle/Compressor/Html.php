@@ -67,13 +67,13 @@ class Html implements CompressorInterface
      */
     public function process(Response $response)
     {
-        // Skipped blocks should be processed before all other blocks
-        $response->setContent($this->preserveSkipBlocks($response->getContent()));
-
-        $this->sortPostProcessListeners();
-
         // Create the event
         $ev = new CompressionEvent($response);
+
+        // Skipped blocks should be processed before all other blocks
+        $this->preserveSkipBlocks($ev);
+
+        $this->sortPostProcessListeners();
 
         // Dispatch the pre processing phase event
         $this->getEventDispatcher()->dispatch(CompressionEvents::PRE_PROCESS, $ev);
@@ -85,7 +85,7 @@ class Html implements CompressorInterface
         $this->getEventDispatcher()->dispatch(CompressionEvents::POST_PROCESS, $ev);
 
         // Revert skipped blocks content
-        $response->setContent($this->processPreservedSkipBlocks($response->getContent()));
+        $this->processPreservedSkipBlocks($ev);
     }
 
     private function sortPostProcessListeners()
@@ -108,6 +108,7 @@ class Html implements CompressorInterface
 
     // SKIP BLOCK PROCESSING
     protected $skipBlocks = array();
+    protected $skipBlocksExecuted = false;
 
     /**
      * Returns the skip block regex
@@ -136,8 +137,14 @@ class Html implements CompressorInterface
     /**
      * Replace the blocks with a temp replacement
      */
-    public function preserveSkipBlocks($html)
+    public function preserveSkipBlocks(CompressionEvent $event)
     {
+        $html = $event->getContent();
+        if (preg_match($this->getSkipBlockReplacementPattern(), $html)) {
+            $event->markFailed();
+            return;
+        }
+
         if (preg_match_all($this->getSkipBlockPattern(), $html, $matches)) {
             foreach($matches[1] as $k => $content) {
                 $this->skipBlocks[$k] = $content;
@@ -145,20 +152,27 @@ class Html implements CompressorInterface
                     sprintf($this->getSkipBlockReplacementFormat(), $k), $html);
             }
         }
-        return $html;
+        $event->setContent($html);
+        $this->skipBlocksExecuted = true;
     }
 
     /**
      * Remove the temp replacement for preserved skip blocks
      */
-    public function processPreservedSkipBlocks($html)
+    public function processPreservedSkipBlocks(CompressionEvent $event)
     {
+        if (!$this->skipBlocksExecuted) {
+            return;
+        }
+
+        $html = $event->getContent();
         if (preg_match_all($this->getSkipBlockReplacementPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->skipBlocks[$k], $html);
             }
         }
 
-        return $html;
+        $event->setContent($html);
+        $this->skipBlocksExecuted = false;
     }
 }
