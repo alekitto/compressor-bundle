@@ -94,11 +94,17 @@ class LineBreakPreserver implements EventSubscriberInterface
 
                 // Insert replacements
                 $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                if ($html === false) {
+                    $event->markFailed();
+                    break;
+                }
             }
         }
 
         // Set response content
-        $event->setContent($html);
+        if ($html !== false) {
+            $event->setContent($html);
+        }
         $this->executed = true;
     }
 
@@ -115,10 +121,16 @@ class LineBreakPreserver implements EventSubscriberInterface
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->blocks[$k], $html);
+                if ($html === false) {
+                    $event->markFailed();
+                    break;
+                }
             }
         }
 
-        $event->setContent($html);
+        if ($html !== false) {
+            $event->setContent($html);
+        }
         $this->executed = false;
     }
 }
