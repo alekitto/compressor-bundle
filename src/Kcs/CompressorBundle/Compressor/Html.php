@@ -67,6 +67,11 @@ class Html implements CompressorInterface
      */
     public function process(Response $response)
     {
+        $contentType = $response->headers->get('Content-Type', 'text/html');
+        if (0 !== stripos($contentType, 'text/html')) {
+            return;
+        }
+
         // Create the event
         $ev = new CompressionEvent($response);
 
