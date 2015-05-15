@@ -3,7 +3,6 @@
 ### Requirements:
 
 * Symfony 2 (>= 2.3)
-* Doctrine 2
 
 ### Installation:
 
