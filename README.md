@@ -1,8 +1,8 @@
-## KCS Compressor bundle for Symfony2
+# Html Compressor bundle for Symfony2
 
 ### Requirements:
 
-* Symfony 2 (>= 2.3)
+* Symfony 2 (>= 2.2)
 
 ### Installation:
 
