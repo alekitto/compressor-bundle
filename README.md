@@ -6,7 +6,6 @@
 
 ### Installation:
 
-
 * Include this bundle in your composer.json
 
 ```bash

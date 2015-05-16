@@ -1,6 +1,7 @@
 {
     "name": "kcs/compressor-bundle",
     "description": "Html compressor and optimizer bundle",
+    "license": "MIT",
     "require": {
         "php": ">=5.3.3",
         "symfony/symfony": ">2.2.0"
