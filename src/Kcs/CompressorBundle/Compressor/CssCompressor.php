@@ -25,6 +25,10 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected $compressor;
 
+    /**
+     * Executed flag
+     * @var bool
+     */
     protected $executed = false;
 
     public function __construct(InlineCompressorInterface $compressor, $enabled)
@@ -89,8 +93,10 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected function getTypeAttr($tag)
     {
-        if (preg_match('#type\s*=\s*(["\']*)(.+?)\1#usi', $tag, $types) === 1)
+        if (preg_match('#type\s*=\s*(["\']*)(.+?)\1#usi', $tag, $types) === 1) {
             return $types[2];
+        }
+
         return null;
     }
 
@@ -110,7 +116,7 @@ class CssCompressor implements EventSubscriberInterface
     }
 
     /**
-     * Compress the javascript blocks
+     * Compress the css blocks
      */
     public function onCompress(CompressionEvent $event)
     {
@@ -129,21 +135,8 @@ class CssCompressor implements EventSubscriberInterface
                 continue;
             }
 
-            // Check if CDATA attribute is present
-            $cdataWrapper = false;
-            $style = $matches[2];
-            if (preg_match('#\s*<!\[CDATA\[(.*?)\]\]>\s*#usi', $style, $cdataMatches)) {
-                $style = $cdataMatches[1];
-                $cdataWrapper = true;
-            }
-
             // Call the inline compressor
-            $style = $this->compressor->compress($style);
-
-            if ($cdataWrapper) {
-                // Rewrap the compressed script into CDATA tag
-                $style = "/*<![CDATA[*/" . $style . "/*]]>*/";
-            }
+            $style = $this->compressor->compress($matches[2]);
 
             // Replace the block into the saved array
             $this->blocks[$k] = $matches[1] . $style . $matches[3];
