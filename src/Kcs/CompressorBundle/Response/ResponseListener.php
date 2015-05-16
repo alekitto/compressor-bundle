@@ -2,21 +2,19 @@
 
 namespace Kcs\CompressorBundle\Response;
 
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Kcs\CompressorBundle\Compressor\CompressorInterface;
 
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Event listener for kernel.response event
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class ResponseListener extends ContainerAware implements EventSubscriberInterface
+class ResponseListener implements EventSubscriberInterface
 {
     /**
      * Config enabled value
@@ -24,10 +22,16 @@ class ResponseListener extends ContainerAware implements EventSubscriberInterfac
      */
     protected $enabled;
 
-    public function __construct(Container $container, $enabled)
+    /**
+     * The response compressor
+     * @var CompressorInterface
+     */
+    protected $compressor;
+
+    public function __construct(CompressorInterface $compressor, $enabled)
     {
-        $this->setContainer($container);
         $this->setEnabled($enabled);
+        $this->compressor = $compressor;
     }
 
     public function isEnabled()
@@ -53,7 +57,9 @@ class ResponseListener extends ContainerAware implements EventSubscriberInterfac
     public function onKernelResponse(FilterResponseEvent $event)
     {
         // This filter is not enabled. Skip...
-        if (!$this->isEnabled()) return;
+        if (!$this->isEnabled()) {
+            return;
+        }
 
         $response = $event->getResponse();
         $this->processResponse($response);
@@ -62,6 +68,6 @@ class ResponseListener extends ContainerAware implements EventSubscriberInterfac
     public function processResponse(Response $response)
     {
         // Call the compressors
-        $this->container->get('kcs_compressor.html_compressor')->process($response);
+        $this->compressor->process($response);
     }
 }

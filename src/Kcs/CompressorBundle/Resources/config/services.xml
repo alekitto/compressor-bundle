@@ -12,7 +12,7 @@
     <services>
         <service id="kcs_compressor.response_listener" class="%kcs_compressor.response_listener.class%">
             <tag name="kernel.event_subscriber" />
-            <argument type="service" id="service_container" />
+            <argument type="service" id="kcs_compressor.html_compressor" />
             <argument>%kcs_compressor.enabled%</argument>
         </service>
         <service id="kcs_compressor.html_compressor" class="%kcs_compressor.html_compressor.class%">
