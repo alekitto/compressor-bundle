@@ -184,10 +184,7 @@ class JavascriptCompressor implements EventSubscriberInterface
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
             foreach($matches[0] as $k => $content) {
-                $type = $this->getTypeAttr($matches[1][$k]);
-
-                // Ignore jQuery template. Should be compressed with the rest of html.
-                if ($type !== "text/x-jquery-tmpl") {
+                if ($this->isJavascript($matches[1][$k])) {
                     // Save found block
                     $this->blocks[$k] = $content;
 
