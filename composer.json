@@ -3,11 +3,13 @@
     "description": "Html compressor and optimizer bundle",
     "license": "MIT",
     "require": {
-        "php": ">=5.3.3",
-        "symfony/symfony": ">2.2.0"
+        "php": "^5.5|^7.0",
+        "symfony/framework-bundle": "^2.2|^3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^1.11"
     },
     "autoload": {
-        "psr-0": { "Kcs\\": "src/" }
+        "psr-4": { "Kcs\\CompressorBundle\\": "src/" }
     }
 }
-

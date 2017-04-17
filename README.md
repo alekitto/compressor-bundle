@@ -38,7 +38,7 @@ You can enable or disable preservers and compressors changing one of these flags
 kcs_compressor:
     enabled:              true      # Set to false to disable the compressor
     compress_html:        true      # Enable HTML optimizations
-    preserve_line_breaks:  true     # Enable the line breaks preservation
+    preserve_line_breaks: true      # Enable the line breaks preservation
     remove_comments:      true      # Remove HTML comments while compressing
     remove_extra_spaces:  true      # Remove extra spaces in HTML
     compress_js:          true      # Enable inline js compression

@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="kcs_compressor.comments_remover" class="Kcs\CompressorBundle\Compressor\HtmlCommentsRemover">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_comments%</argument>
+        </service>
+
+        <service id="kcs_compressor.js_compressor" class="Kcs\CompressorBundle\Compressor\JavascriptCompressor">
+            <tag name="kernel.event_subscriber" />
+            <argument type="service" id="kcs_compressor.inline_js_compressor" />
+            <argument>%kcs_compressor.compress_js%</argument>
+        </service>
+
+        <service id="kcs_compressor.css_compressor" class="Kcs\CompressorBundle\Compressor\CssCompressor">
+            <tag name="kernel.event_subscriber" />
+            <argument type="service" id="kcs_compressor.inline_css_compressor" />
+            <argument>%kcs_compressor.compress_css%</argument>
+        </service>
+
+        <service id="kcs_compressor.intertag_spaces_remover" class="Kcs\CompressorBundle\Compressor\IntertagSpacesRemover">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
+        </service>
+
+        <service id="kcs_compressor.surrounding_spaces_remover" class="Kcs\CompressorBundle\Compressor\SurroundingSpacesRemover">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
+        </service>
+
+        <service id="kcs_compressor.multispace_remover" class="Kcs\CompressorBundle\Compressor\MultiSpaceRemover">
+            <tag name="kernel.event_subscriber" />
+            <argument>%kcs_compressor.remove_extra_spaces%</argument>
+        </service>
+    </services>
+</container>

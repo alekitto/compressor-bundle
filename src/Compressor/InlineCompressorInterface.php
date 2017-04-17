@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Kcs\CompressorBundle\Compressor;
 
 /**

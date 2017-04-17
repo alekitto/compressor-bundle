@@ -2,50 +2,29 @@
 
 namespace Kcs\CompressorBundle\Preserver;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Compression line break preserver
+ * Compression conditional comments preserver
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class LineBreakPreserver implements EventSubscriberInterface
+class SSIPreserver implements EventSubscriberInterface
 {
     /**
-     * Config enabled value
-     * @var bool
-     */
-    protected $enabled;
-
-    public function __construct($enabled)
-    {
-        $this->setEnabled($enabled);
-    }
-
-    public function isEnabled()
-    {
-        return $this->enabled;
-    }
-
-    public function setEnabled($v)
-    {
-        $this->enabled = $v;
-    }
-
-    /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
-            CompressionEvents::POST_PROCESS => 'onPostProcess'
-        );
+            CompressionEvents::POST_PROCESS => 'onPostProcess',
+        ];
     }
 
-    protected $blocks = array();
+    protected $blocks = [];
     protected $executed = false;
 
     /**
@@ -53,7 +32,7 @@ class LineBreakPreserver implements EventSubscriberInterface
      */
     protected function getPattern()
     {
-        return '#(?:[ \t]*(\r?\n)[ \t]*)+#u';
+        return '/<!--\s*#.*?-->/usi';
     }
 
     /**
@@ -61,7 +40,7 @@ class LineBreakPreserver implements EventSubscriberInterface
      */
     protected function getReplacementFormat()
     {
-        return '%%%%%%~COMPRESS~LB~%u~%%%%%%';
+        return '%%%%%%~COMPRESS~SSI~%u~%%%%%%';
     }
 
     /**
@@ -69,12 +48,11 @@ class LineBreakPreserver implements EventSubscriberInterface
      */
     protected function getReplacementPattern()
     {
-        return '#%%%~COMPRESS~LB~(\d+?)~%%%#u';
+        return '#%%%~COMPRESS~SSI~(\d+?)~%%%#u';
     }
 
     public function onPreProcess(CompressionEvent $event)
     {
-        if (!$this->isEnabled()) return;
         $html = $event->getContent();
 
         if (!$event->isSafeToContinue()) {
@@ -83,18 +61,20 @@ class LineBreakPreserver implements EventSubscriberInterface
 
         if (preg_match($this->getReplacementPattern(), $html)) {
             $event->markFailed();
+
             return;
         }
 
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 // Save found block
-                $this->blocks[$k] = $matches[1][$k];
+                $this->blocks[$k] = $content;
 
                 // Insert replacements
-                $html = mb_ereg_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
-                if ($html === false) {
+                $html = preg_replace('/'.preg_quote($content, '/').'/usi',
+                        sprintf($this->getReplacementFormat(), $k), $html);
+                if ($html === null) {
                     $event->markFailed();
                     break;
                 }
@@ -102,7 +82,7 @@ class LineBreakPreserver implements EventSubscriberInterface
         }
 
         // Set response content
-        if ($html !== false) {
+        if ($html !== null) {
             $event->setContent($html);
         }
         $this->executed = true;
@@ -114,12 +94,11 @@ class LineBreakPreserver implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->isEnabled()) return;
         $html = $event->getContent();
 
         // Revert modifications made in pre-process phase
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->blocks[$k], $html);
                 if ($html === false) {
                     $event->markFailed();

@@ -2,11 +2,10 @@
 
 namespace Kcs\CompressorBundle\Compressor;
 
-use Symfony\Component\HttpFoundation\Response;
-
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * HtmlCompressor
@@ -95,7 +94,9 @@ class Html implements CompressorInterface
 
     private function sortPostProcessListeners()
     {
-        if ($this->listenerSorted) return;
+        if ($this->listenerSorted) {
+            return;
+        }
 
         // Post processing filters must be executed in the reverse order
         $dispatcher = $this->getEventDispatcher();
@@ -112,7 +113,7 @@ class Html implements CompressorInterface
     }
 
     // SKIP BLOCK PROCESSING
-    protected $skipBlocks = array();
+    protected $skipBlocks = [];
     protected $skipBlocksExecuted = false;
 
     /**
@@ -147,13 +148,14 @@ class Html implements CompressorInterface
         $html = $event->getContent();
         if (preg_match($this->getSkipBlockReplacementPattern(), $html)) {
             $event->markFailed();
+
             return;
         }
 
         if (preg_match_all($this->getSkipBlockPattern(), $html, $matches)) {
-            foreach($matches[1] as $k => $content) {
+            foreach ($matches[1] as $k => $content) {
                 $this->skipBlocks[$k] = $content;
-                $html = preg_replace('/' . preg_quote($content, '/') . '/usi',
+                $html = preg_replace('/'.preg_quote($content, '/').'/usi',
                     sprintf($this->getSkipBlockReplacementFormat(), $k), $html);
 
                 if ($html === null) {
@@ -181,7 +183,7 @@ class Html implements CompressorInterface
 
         $html = $event->getContent();
         if (preg_match_all($this->getSkipBlockReplacementPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->skipBlocks[$k], $html);
 
                 if ($html === false) {

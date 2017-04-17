@@ -1,12 +1,12 @@
 <?php
 
-namespace Kcs\CompressorBundle\Css;
+namespace Kcs\CompressorBundle\Js;
 
-use Kcs\CompressorBundle\Util\BaseProcessCompressor;
 use Kcs\CompressorBundle\Exception\ProcessException;
+use Kcs\CompressorBundle\Util\BaseProcessCompressor;
 
 /**
- * Use YUI compressor for inline css minifization
+ * Use YUI compressor for inline javascript minifization
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
@@ -15,21 +15,25 @@ class YuiCompressor extends BaseProcessCompressor
     private $javaPath;
     private $jarPath;
 
-    public function __construct($jarPath, $javaPath = '/usr/bin/java') {
+    public function __construct($jarPath, $javaPath = '/usr/bin/java')
+    {
         $this->setJarPath($jarPath);
         $this->setJavaPath($javaPath);
     }
 
-    public function setJavaPath($javaPath) {
+    public function setJavaPath($javaPath)
+    {
         $this->javaPath = $javaPath;
     }
 
-    public function setJarPath($jarPath) {
+    public function setJarPath($jarPath)
+    {
         $this->jarPath = $jarPath;
     }
 
-    public function compress($block) {
-        $pb = $this->createProcessBuilder(array($this->javaPath));
+    public function compress($block)
+    {
+        $pb = $this->createProcessBuilder([$this->javaPath]);
 
         $pb->add('-jar')->add($this->jarPath);
 
@@ -38,7 +42,7 @@ class YuiCompressor extends BaseProcessCompressor
         $input = tempnam($tempDir, 'YUI-IN-');
         $output = tempnam($tempDir, 'YUI-OUT-');
         file_put_contents($input, $block);
-        $pb->add('-o')->add($output)->add('--type')->add('css')->add($input);
+        $pb->add('-o')->add($output)->add('--type')->add('js')->add($input);
 
         $proc = $pb->getProcess();
         $code = $proc->run();

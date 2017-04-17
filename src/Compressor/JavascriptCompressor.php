@@ -2,16 +2,16 @@
 
 namespace Kcs\CompressorBundle\Compressor;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * <style> tag preserver and css compressor
+ * <script> tag preserver and javascript processor
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class CssCompressor implements EventSubscriberInterface
+class JavascriptCompressor implements EventSubscriberInterface
 {
     /**
      * Config enabled value
@@ -20,15 +20,11 @@ class CssCompressor implements EventSubscriberInterface
     protected $enabled;
 
     /**
-     * The css inline compressor
+     * The js inline compressor
      * @var InlineCompressorInterface
      */
     protected $compressor;
 
-    /**
-     * Executed flag
-     * @var bool
-     */
     protected $executed = false;
 
     public function __construct(InlineCompressorInterface $compressor, $enabled)
@@ -48,23 +44,23 @@ class CssCompressor implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
             CompressionEvents::COMPRESS => 'onCompress',
-            CompressionEvents::POST_PROCESS => 'onPostProcess'
-        );
+            CompressionEvents::POST_PROCESS => 'onPostProcess',
+        ];
     }
 
     /**
-     * The <style> tag regex pattern
+     * The <script> tag regex pattern
      */
     protected function getPattern()
     {
-        return '#(<style[^>]*?>)(.*?)(</style>)#usi';
+        return '#(<script[^>]*?>)(.*?)(</script>)#usi';
     }
 
     /**
@@ -72,7 +68,7 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected function getReplacementFormat()
     {
-        return '%%%%%%~COMPRESS~STYLE~%u~%%%%%%';
+        return '%%%%%%~COMPRESS~SCRIPT~%u~%%%%%%';
     }
 
     /**
@@ -80,15 +76,16 @@ class CssCompressor implements EventSubscriberInterface
      */
     protected function getReplacementPattern()
     {
-        return '#%%%~COMPRESS~STYLE~(\d+?)~%%%#u';
+        return '#%%%~COMPRESS~SCRIPT~(\d+?)~%%%#u';
     }
 
-    protected $blocks = array();
+    protected $blocks = [];
 
     /**
-     * Returns the content of the type attribute, null if the type attribute is not present
+     * Returns the content of the type attribute,
+     * null if the type attribute is not present
      *
-     * @param string $tag The style tag to be parsed
+     * @param string $tag The script tag to be parsed
      * @return string|null
      */
     protected function getTypeAttr($tag)
@@ -101,22 +98,42 @@ class CssCompressor implements EventSubscriberInterface
     }
 
     /**
-     * Returns TRUE if the tag is a css opening tag, FALSE otherwise
+     * Returns the content of the language attribute,
+     * null if the language attribute is not present
      *
-     * @param string $openingTag
-     * @return bool
+     * @param string $tag The script tag to be parsed
+     * @return string|null
      */
-    protected function isCss($openingTag)
+    protected function getLanguageAttr($tag)
     {
-        $type = $this->getTypeAttr($openingTag);
+        if (preg_match('#language\s*=\s*(["\']*)(.+?)\1#usi', $tag, $langs) === 1) {
+            return $langs[2];
+        }
 
-        // HTML5 does not require the type attribute.
-        // The default value is "text/css"
-        return $type === 'text/css' || $type === null;
+        return null;
     }
 
     /**
-     * Compress the css blocks
+     * Returns TRUE if the tag is a javascript opening tag, FALSE otherwise
+     * @param string $openingTag
+     * @return bool
+     */
+    protected function isJavascript($openingTag)
+    {
+        $type = $this->getTypeAttr($openingTag);
+        $lang = $this->getLanguageAttr($openingTag);
+
+        return
+            $type === 'text/javascript' || $type === 'application/javascript' ||
+            $lang === 'javascript' ||
+        // If type and language attribute are not present default type is "text/javascript"
+            ($type === null && $lang === null);
+    }
+
+    /**
+     * Compress the javascript blocks
+     *
+     * @param CompressionEvent $event
      */
     public function onCompress(CompressionEvent $event)
     {
@@ -124,22 +141,37 @@ class CssCompressor implements EventSubscriberInterface
             return;
         }
 
-        foreach($this->blocks as $k => $content) {
+        foreach ($this->blocks as $k => $content) {
             // Extract the script code
             if (preg_match($this->getPattern(), $content, $matches) !== 1) {
                 continue;
             }
 
-            // Can't call compressor if not css code block
-            if (!$this->isCss($matches[1])) {
+            // Can't call compressor if not js code block
+            if (!$this->isJavascript($matches[1])) {
                 continue;
             }
 
+            // Check if CDATA attribute is present
+            $cdataWrapper = false;
+            $script = $matches[2];
+            if (preg_match('#\s*<!\[CDATA\[(?:\s*\*/)(.*?)(?:/\*\s*)\]\]>\s*#usi', $script, $cdataMatches)) {
+                $script = $cdataMatches[1];
+                $cdataWrapper = true;
+            }
+
             // Call the inline compressor
-            $style = $this->compressor->compress($matches[2]);
+            if (($script = trim($script))) {
+                $script = $this->compressor->compress($script);
+            }
+
+            if ($cdataWrapper) {
+                // Rewrap the compressed script into CDATA tag
+                $script = '/*<![CDATA[*/'.$script.'/*]]>*/';
+            }
 
             // Replace the block into the saved array
-            $this->blocks[$k] = $matches[1] . $style . $matches[3];
+            $this->blocks[$k] = $matches[1].$script.$matches[3];
         }
     }
 
@@ -153,17 +185,20 @@ class CssCompressor implements EventSubscriberInterface
 
         if (preg_match($this->getReplacementPattern(), $html)) {
             $event->markFailed();
+
             return;
         }
 
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
-                // Save found block
-                $this->blocks[$k] = $content;
+            foreach ($matches[0] as $k => $content) {
+                if ($this->isJavascript($matches[1][$k])) {
+                    // Save found block
+                    $this->blocks[$k] = $content;
 
-                // Insert replacements
-                $html = str_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                    // Insert replacements
+                    $html = str_replace($content, sprintf($this->getReplacementFormat(), $k), $html);
+                }
             }
         }
 
@@ -182,8 +217,8 @@ class CssCompressor implements EventSubscriberInterface
 
         // Revert modifications made in pre-process phase
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
-                $html = mb_ereg_replace($content, $this->blocks[$k], $html);
+            foreach ($matches[0] as $k => $content) {
+                $html = mb_ereg_replace($content, $this->blocks[$matches[1][$k]], $html);
 
                 if ($html === false) {
                     $event->markFailed();
@@ -195,7 +230,6 @@ class CssCompressor implements EventSubscriberInterface
         if ($html !== false) {
             $event->setContent($html);
         }
-
         $this->executed = false;
     }
 }

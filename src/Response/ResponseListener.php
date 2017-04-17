@@ -4,10 +4,10 @@ namespace Kcs\CompressorBundle\Response;
 
 use Kcs\CompressorBundle\Compressor\CompressorInterface;
 
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Event listener for kernel.response event
@@ -45,13 +45,13 @@ class ResponseListener implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            KernelEvents::RESPONSE => 'onKernelResponse'
-        );
+        return [
+            KernelEvents::RESPONSE => 'onKernelResponse',
+        ];
     }
 
     public function onKernelResponse(FilterResponseEvent $event)

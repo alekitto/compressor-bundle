@@ -2,9 +2,9 @@
 
 namespace Kcs\CompressorBundle\Preserver;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Compression conditional comments preserver
@@ -14,17 +14,17 @@ use Kcs\CompressorBundle\Event\CompressionEvent;
 class ConditionalCommentsPreserver implements EventSubscriberInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
-            CompressionEvents::POST_PROCESS => 'onPostProcess'
-        );
+            CompressionEvents::POST_PROCESS => 'onPostProcess',
+        ];
     }
 
-    protected $blocks = array();
+    protected $blocks = [];
     protected $executed = false;
 
     /**
@@ -61,12 +61,13 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
 
         if (preg_match($this->getReplacementPattern(), $html)) {
             $event->markFailed();
+
             return;
         }
 
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 // Save found block
                 $this->blocks[$k] = $matches[1][$k];
 
@@ -96,7 +97,7 @@ class ConditionalCommentsPreserver implements EventSubscriberInterface
 
         // Revert modifications made in pre-process phase
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->blocks[$k], $html);
                 if ($html === false) {
                     $event->markFailed();

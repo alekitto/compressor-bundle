@@ -2,9 +2,9 @@
 
 namespace Kcs\CompressorBundle\Preserver;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Compression abstract preserver for generic tag
@@ -14,17 +14,17 @@ use Kcs\CompressorBundle\Event\CompressionEvent;
 abstract class AbstractTagPreserver implements EventSubscriberInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             CompressionEvents::PRE_PROCESS => 'onPreProcess',
-            CompressionEvents::POST_PROCESS => 'onPostProcess'
-        );
+            CompressionEvents::POST_PROCESS => 'onPostProcess',
+        ];
     }
 
-    protected $blocks = array();
+    protected $blocks = [];
     protected $executed = false;
 
     /**
@@ -52,17 +52,18 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
 
         if (preg_match($this->getReplacementPattern(), $html)) {
             $event->markFailed();
+
             return;
         }
 
         // Find all occourrences of block pattern on response content
         if (preg_match_all($this->getPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 // Save found block
                 $this->blocks[$k] = $matches[1][$k];
 
                 // Insert replacements
-                $html = preg_replace('/' . preg_quote($content, '/') . '/usi',
+                $html = preg_replace('/'.preg_quote($content, '/').'/usi',
                         sprintf($this->getReplacementFormat(), $k), $html);
 
                 if ($html === null) {
@@ -89,7 +90,7 @@ abstract class AbstractTagPreserver implements EventSubscriberInterface
 
         // Revert modifications made in pre-process phase
         if (preg_match_all($this->getReplacementPattern(), $html, $matches)) {
-            foreach($matches[0] as $k => $content) {
+            foreach ($matches[0] as $k => $content) {
                 $html = mb_ereg_replace($content, $this->blocks[$k], $html);
                 if ($html === false) {
                     $event->markFailed();

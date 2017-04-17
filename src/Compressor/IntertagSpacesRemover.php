@@ -2,16 +2,16 @@
 
 namespace Kcs\CompressorBundle\Compressor;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Kcs\CompressorBundle\Event\CompressionEvents;
 use Kcs\CompressorBundle\Event\CompressionEvent;
+use Kcs\CompressorBundle\Event\CompressionEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Html comments remover
+ * Removes extra spaces between tags
  *
  * @author Alessandro Chitolina <alekitto@gmail.com>
  */
-class HtmlCommentsRemover implements EventSubscriberInterface
+class IntertagSpacesRemover implements EventSubscriberInterface
 {
     /**
      * Config enabled value
@@ -35,21 +35,21 @@ class HtmlCommentsRemover implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            CompressionEvents::COMPRESS => 'onCompress'
-        );
+        return [
+            CompressionEvents::COMPRESS => 'onCompress',
+        ];
     }
 
     /**
-     * The html comments pattern for mb_eregi_replace
+     * The pattern for mb_eregi_replace
      */
     protected function getPattern()
     {
-        return '<!---->|<!--[^\[].*?-->';
+        return '(>|~%%%)\s+(<|%%%~)';
     }
 
     public function onCompress(CompressionEvent $event)
@@ -58,6 +58,6 @@ class HtmlCommentsRemover implements EventSubscriberInterface
             return;
         }
 
-        $event->setContent(mb_eregi_replace($this->getPattern(), '', $event->getContent()));
+        $event->setContent(mb_eregi_replace($this->getPattern(), '\1\2', $event->getContent()));
     }
 }

@@ -4,18 +4,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <parameters>
-        <parameter key="kcs_compressor.response_listener.class">Kcs\CompressorBundle\Response\ResponseListener</parameter>
-        <parameter key="kcs_compressor.html_compressor.class">Kcs\CompressorBundle\Compressor\Html</parameter>
-    </parameters>
-
     <services>
-        <service id="kcs_compressor.response_listener" class="%kcs_compressor.response_listener.class%">
+        <service id="kcs_compressor.response_listener" class="Kcs\CompressorBundle\Response\ResponseListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="kcs_compressor.html_compressor" />
             <argument>%kcs_compressor.enabled%</argument>
         </service>
-        <service id="kcs_compressor.html_compressor" class="%kcs_compressor.html_compressor.class%">
+
+        <service id="kcs_compressor.html_compressor" class="Kcs\CompressorBundle\Compressor\Html">
             <argument type="service" id="event_dispatcher" />
             <argument>%kcs_compressor.compress_html%</argument>
         </service>
